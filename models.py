@@ -1,5 +1,5 @@
 import sys
-
+import logging
 from google.appengine.ext import db
 
 class Party(db.Model):
@@ -7,6 +7,8 @@ class Party(db.Model):
     abbreviation = db.StringProperty(required=True)
     color = db.StringProperty(required=True)
 
+    def find_by_abbreviation(self, abbr):
+        return db.GqlQuery("")
 
 class Institute(db.Model):
     name = db.StringProperty(required=True)
@@ -40,10 +42,44 @@ class Poll(db.Model):
     #    if sum != 100.0:
     #        errors.add('Sum of percentages must be 100.0: ' + sum)
     #    return errors
-    
+
     def percentage_of(self, party):
         results = db.get(self.results)
         for result in results:
             if result.party.key() == party.key():
                 return result.percentage
         return 0.0
+
+class PollingAverage:
+
+    def __init__(self, polls):
+        self.percentages = {}
+        for poll in polls:
+            for resultkey in poll.results:
+                result = db.get(resultkey)
+                if result.party.name in self.percentages:
+                    prev = self.percentages[result.party.name]
+                else:
+                    prev = 0.0  
+
+                self.percentages[result.party.name] = prev + result.percentage
+        for k, v in self.percentages.iteritems():
+            self.percentages[k] = v/len(polls)
+
+    def percentage_of(self, party):
+        if party.name in self.percentages:
+            return self.percentages[party.name]
+        else:
+            return 0.0
+
+    def max_percentage(self):
+        max = 0.0
+        for k, v in self.percentages.iteritems():
+            if v > max:
+                max = v
+        return max
+
+class Block:
+
+    def __init__(self, parties):
+        self.parties = parties
