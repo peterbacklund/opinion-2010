@@ -17,7 +17,7 @@ class MainPage(webapp.RequestHandler):
 
 
         cutoff = 4.0/avg.max_percentage()
-        url = 'http://chart.apis.google.com/chart?chs=1000x300&chxt=x,y&chxr=1,0,' + str(avg.max_percentage()) + '&chm=r,dddddd,0,0,' + str(cutoff) + '&cht=bvs&chbh=a,40&chds=0,' + str(avg.max_percentage())
+        url = 'http://chart.apis.google.com/chart?chs=1000x300&chxt=x,y&chxr=1,0,' + str(avg.max_percentage()) + '&chm=r,dddddd,0,0,' + str(cutoff) + '&cht=bvs&chbh=a,20&chds=0,' + str(avg.max_percentage())
 
         pieces = '&chd=t:'
         labels = '&chl='
@@ -25,31 +25,46 @@ class MainPage(webapp.RequestHandler):
         legends = '&chdl='
         for party in parties:
             pieces += str(avg.percentage_of(party)) + ','
-            labels += party.abbreviation + '  ' + str(avg.percentage_of(party)) + ' %|'
+            labels += party.abbreviation + ' ' + str(avg.percentage_of(party)) + ' %|'
             colors += party.color + '|'
             legends += party.name + '|'
-        pieces += '0.0'
-        labels += 'NONE'
-        colors += '123456'
-        legends += 'NONE'
+        pieces = pieces[0:-1]
+        labels += labels[0:-1]
+        colors += colors[0:-1]
+        legends += legends[0:-1]
 
 
-        self.response.out.write('<img src="%s" alt="FAIL"/>' % (url + pieces + labels + colors))
+        self.response.out.write('<div style="width: 1000px"><img src="%s" alt="FAIL"/></div>' % (url + pieces + labels + colors))
 
-        url2 = 'http://chart.apis.google.com/chart?chs=500x600&chxt=x,y&chxr=1,0,50|1,0,50&cht=lxy&chbh=a'
+        url2 = 'http://chart.apis.google.com/chart?chs=500x400&chxt=x,y&chxr=1,0,50|1,0,' + str(avg.max_percentage() + 10) +'&cht=lxy&chbh=a&chds=0,' + str(avg.max_percentage() + 10)
         y_values = '&chd=t:'
         colors = '&chco='
         legends = '&chdl='
         for party in parties:
             y_values += '5,20|'
-            colors += party.color + '|'
+            colors += party.color + ','
             legends += party.name + '|'
             for poll in polls:
                 y_values += str(poll.percentage_of(party)) + ','
-            y_values = y_values[0:-1]
-            y_values += '|'
-        y_values = y_values[0:-1]            
-        self.response.out.write('<img src="%s" alt="FAIL2"/>' % (url2 + y_values + legends))
+            y_values = y_values[0:-1] + '|'
+        self.response.out.write('<div style="width: 1200px"><img src="%s" alt="FAIL2"/>' % (url2 + y_values[0:-1] + legends[0:-1] + colors[0:-1]))
+
+
+
+        url3 = 'http://chart.apis.google.com/chart?chs=600x300&cht=p'
+        data = '&chd=t:'
+        colors = '&chco=fd3131|85cbeb|adadad'
+
+        left_sum = avg.left_block_percentage()
+        right_sum = avg.right_block_percentage()
+        other_sum = avg.other_block_percentage()
+
+        legends = '&chl=S/V/MP ' + str(left_sum) + '%|C/FP/M/KD ' + str(right_sum) + '%|SD/FI/PP/OVR ' + str(other_sum) + '%'
+        data += str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
+
+        self.response.out.write('<img src="%s" alt="FAIL3"/></div>' % (url3 + data + colors + legends))
+
+
 
 application = webapp.WSGIApplication([('/', MainPage)], debug=True)
 

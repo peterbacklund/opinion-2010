@@ -53,22 +53,24 @@ class Poll(db.Model):
 class PollingAverage:
 
     def __init__(self, polls):
+        self.left_parties = ['S','V','MP']
+        self.right_parties = ['C','FP','M','KD']
         self.percentages = {}
         for poll in polls:
             for resultkey in poll.results:
                 result = db.get(resultkey)
-                if result.party.name in self.percentages:
-                    prev = self.percentages[result.party.name]
+                if result.party.abbreviation in self.percentages:
+                    prev = self.percentages[result.party.abbreviation]
                 else:
                     prev = 0.0  
 
-                self.percentages[result.party.name] = prev + result.percentage
+                self.percentages[result.party.abbreviation] = prev + result.percentage
         for k, v in self.percentages.iteritems():
             self.percentages[k] = v/len(polls)
 
     def percentage_of(self, party):
-        if party.name in self.percentages:
-            return self.percentages[party.name]
+        if party.abbreviation in self.percentages:
+            return self.percentages[party.abbreviation]
         else:
             return 0.0
 
@@ -79,7 +81,39 @@ class PollingAverage:
                 max = v
         return max
 
-class Block:
+    def left_block_percentage(self):    
+        sum = 0
+        for k, v in self.percentages.iteritems():
+            if k in self.left_parties:
+                sum += v
+        return sum
 
-    def __init__(self, parties):
-        self.parties = parties
+    def right_block_percentage(self):
+        sum = 0
+        for k, v in self.percentages.iteritems():
+            if k in self.right_parties:
+                sum += v
+        return sum
+
+    def other_block_percentage(self):
+        sum = 0
+        for k, v in self.percentages.iteritems():
+            if not (k in self.left_parties) and not (k in self.right_parties):
+                sum += v
+        return sum                
+
+
+class Chart:
+    chart_api_url = 'http://chart.apis.google.com/chart?'
+    pass
+
+class PartyAverageBarChart(Chart):
+    width = 1000
+    height = 300
+    pass
+
+class PartyResultLineChart(Chart):
+    pass
+
+class BlockPieChart(Chart):
+    pass
