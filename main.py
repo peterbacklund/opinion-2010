@@ -36,18 +36,11 @@ class MainPage(webapp.RequestHandler):
 
         self.response.out.write('<div style="width: 1000px"><img src="%s" alt="FAIL"/></div>' % (url + pieces + labels + colors))
 
-        url2 = 'http://chart.apis.google.com/chart?chs=500x400&chxt=x,y&chxr=1,0,50|1,0,' + str(avg.max_percentage() + 10) +'&cht=lxy&chbh=a&chds=0,' + str(avg.max_percentage() + 10)
-        y_values = '&chd=t:'
-        colors = '&chco='
-        legends = '&chdl='
-        for party in parties:
-            y_values += '5,20|'
-            colors += party.color + ','
-            legends += party.name + '|'
-            for poll in polls:
-                y_values += str(poll.percentage_of(party)) + ','
-            y_values = y_values[0:-1] + '|'
-        self.response.out.write('<div style="width: 1200px"><img src="%s" alt="FAIL2"/>' % (url2 + y_values[0:-1] + legends[0:-1] + colors[0:-1]))
+
+
+
+        partyResultLineChart = PartyResultLineChart(polls)
+        self.response.out.write('<div style="width: 1200px"><img src="%s" alt="FAIL2"/>' % partyResultLineChart.build_url())
 
 
 

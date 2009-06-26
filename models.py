@@ -2,6 +2,18 @@ import sys
 import logging
 from google.appengine.ext import db
 
+class Queries(db.Model):
+
+    def find_party_by_abbreviation(self, abbr):
+        return db.Query(Party).filter('abbreviation =', abbr).get()
+
+    def find_institute_by_name(self, name):
+        return db.Query(Institute).filter('name = ', name).get()
+
+    def find_recent_polls(self, count):
+        return db.Query(Poll).order('-publish_date').fetch(count)
+
+
 class Party(db.Model):
     name = db.StringProperty(required=True)
     abbreviation = db.StringProperty(required=True)
@@ -51,26 +63,26 @@ class Poll(db.Model):
         return 0.0
 
 class PollingAverage:
+    left_parties = ['S','V','MP']
+    right_parties = ['C','FP','M','KD']
 
     def __init__(self, polls):
-        self.left_parties = ['S','V','MP']
-        self.right_parties = ['C','FP','M','KD']
         self.percentages = {}
         for poll in polls:
             for resultkey in poll.results:
                 result = db.get(resultkey)
-                if result.party.abbreviation in self.percentages:
-                    prev = self.percentages[result.party.abbreviation]
+                if result.party.key() in self.percentages:
+                    prev = self.percentages[result.party.key()]
                 else:
                     prev = 0.0  
 
-                self.percentages[result.party.abbreviation] = prev + result.percentage
+                self.percentages[result.party.key()] = prev + result.percentage
         for k, v in self.percentages.iteritems():
             self.percentages[k] = v/len(polls)
 
     def percentage_of(self, party):
-        if party.abbreviation in self.percentages:
-            return self.percentages[party.abbreviation]
+        if party.key() in self.percentages:
+            return self.percentages[party.key()]
         else:
             return 0.0
 
@@ -84,36 +96,104 @@ class PollingAverage:
     def left_block_percentage(self):    
         sum = 0
         for k, v in self.percentages.iteritems():
-            if k in self.left_parties:
+            party = db.get(k)
+            if party.abbreviation in self.left_parties:
                 sum += v
         return sum
 
     def right_block_percentage(self):
         sum = 0
         for k, v in self.percentages.iteritems():
-            if k in self.right_parties:
+            party = db.get(k)
+            if party.abbreviation in self.right_parties:
                 sum += v
         return sum
 
     def other_block_percentage(self):
         sum = 0
         for k, v in self.percentages.iteritems():
-            if not (k in self.left_parties) and not (k in self.right_parties):
+            party = db.get(k)
+            if not (party.abbreviation in self.left_parties) and not (party.abbreviation in self.right_parties):
                 sum += v
         return sum                
 
-
+    def parties(self):
+        return db.get(self.percentages.keys())
+        
 class Chart:
     chart_api_url = 'http://chart.apis.google.com/chart?'
-    pass
+    param_type = 'cht='
+    param_dimension = 'chs='
+    param_data = 'chd=t:'
+    param_marker = 'chm='
+    param_axes = 'chxt='
+    param_ranges = 'chxr='
+    param_colors = 'chco='
+    param_labels = 'chl='
+    param_scaling = 'chds='
+
+    def __init__(self, dimension, type):
+        self.dimension = dimension
+        self.type = type
+
+    def add(self, param, value):
+        return param + value
+
+    def base_url(self):
+        return self.chart_api_url + \
+               self.add(self.param_type, self.type) + '&' + \
+               self.add(self.param_dimension, self.dimension) + '&'
+
 
 class PartyAverageBarChart(Chart):
-    width = 1000
-    height = 300
-    pass
+    param_bar_width = 'chbh'
+
+    def __init__(self, avg):
+        Chart.__init__('1000x300', 'bvs')
+        self.avg = avg
+
+    def build_url(self):
+        cutoff_ratio = 4.0/self.avg.max_percentage()
+
 
 class PartyResultLineChart(Chart):
-    pass
+    margin = 10
+    param_legends = 'chdl='
+
+    def __init__(self, polls):
+        Chart.__init__(self, '500x400', 'lxy')
+        self.polls = polls
+        self.avg = PollingAverage(polls)
+
+    def build_url(self):
+        ceil = self.avg.max_percentage() + self.margin
+        url = Chart.base_url(self) + \
+              Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
+              Chart.add(self, Chart.param_ranges, '1,0,50|1,0,' + str(ceil)) + '&' + \
+              Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
+
+        data = ''
+        colors = ''
+        legends = ''
+        for party in Party.all():
+            data += '5,20|'
+            colors += party.color + ','
+            legends += party.name + '|'
+            for poll in self.polls:
+                data += str(poll.percentage_of(party)) + ','
+            data = data[0:-1] + '|'
+
+
+        return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
+                     Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
+                     Chart.add(self, self.param_legends, legends[0:-1])
+
 
 class BlockPieChart(Chart):
-    pass
+
+    def __init__(self, avg):
+        Chart.__init__('600x300', 'p')
+        self.avg = avg
+
+    def build_url(self):
+        pass
