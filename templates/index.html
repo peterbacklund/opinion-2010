@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+    <title>Opinion 2010</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link href="/css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <h1>Opinion 2010</h1>
+    <div><em>OBS OBS OBS Data är påhittat OBS OBS OBS</em></div>
+    <h2>Nyheter</h2>
+    <ul>
+        <li><strong>2009-06-30:</strong> Premiär för Opinion2010.se, lagom till Almedalsveckan!</li>
+    </ul>
+    <h2>Medelvärde av de senaste 10 mätningarna</h2>
+    <div><img src="{{ partyAverage }}" alt=""/></div>
+    <h2>Blockens fördelning enligt medelvärde av de senaste 10 mätningarna</h2>
+    <div><img src="{{ block }}" alt=""/></div>
+    <h2>Resultat av de senaste 10 mätningarna</h2>
+    <div>
+        <img src="{{ partyResult }}" alt=""/>
+        <div><em>OBS OBS OBS Data är påhittat OBS OBS OBS</em></div>
+        <table border="1">
+            <caption>Mätningar</caption>
+            <tr>
+                <th>Parti</th>
+                {% for poll in polls %}
+                <th>{{ forloop.counter }}: {{ poll.institute.name }} {{ poll.publish_date|date:"Y-m-d" }}</th>
+                {% endfor %}
+            </tr>
+            {{ party_percentages_html }}
+        </table>
+    </div>
+</body>
+</html>

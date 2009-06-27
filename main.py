@@ -3,30 +3,44 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp.util import run_wsgi_app
 from models import *
 import time
+import os
 from datetime import date,datetime
+from google.appengine.ext.webapp import template
+from string import Template
+
 
 class MainPage(webapp.RequestHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/html'
-
-        repository = Repository()
-
         parties = Party.all()
         polls = repository.find_recent_polls(10)
-
         avg = PollingAverage(polls)
 
-        partyAverageBarChart = PartyAverageBarChart(avg)
-        self.response.out.write('<div style="width: 1000px"><img src="%s" alt="FAIL"/></div>' % partyAverageBarChart.build_url())
+        # TODO memcache this
+        partyAverage = PartyAverageBarChart(avg).build_url()
+        partyResult = PartyResultLineChart(polls).build_url()
+        block = BlockPieChart(avg).build_url()
 
-        partyResultLineChart = PartyResultLineChart(polls)
-        self.response.out.write('<div style="width: 1200px"><img src="%s" alt="FAIL2"/>' % partyResultLineChart.build_url())
+        # Not cool
+        party_percentages_html = ''
+        for party in parties:
+            party_percentages_html += '<tr><td>' + party.name + '</td>'
+            for poll in polls:
+                party_percentages_html += '<td>' + str(poll.percentage_of(party)) + '</td>'
+            party_percentages_html += '</tr>'
 
-        blockPieChart = BlockPieChart(avg)
-        self.response.out.write('<img src="%s" alt="FAIL3"/></div>' % blockPieChart.build_url())
+        template_values = {
+            'partyAverage' : partyAverage,
+            'partyResult' : partyResult,
+            'block' : block,
+            'polls' : polls,
+            'parties' : parties,
+            'party_percentages_html' : party_percentages_html
+        }
 
+        self.response.out.write(template.render('templates/index.html', template_values))
 
 application = webapp.WSGIApplication([('/', MainPage)], debug=True)
+repository = Repository()
 
 def main():
     #setup_sample_data()

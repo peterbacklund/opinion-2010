@@ -2,7 +2,7 @@ import sys
 import logging
 from google.appengine.ext import db
 
-class Repository(db.Model):
+class Repository:
 
     def find_party_by_abbreviation(self, abbr):
         return db.Query(Party).filter('abbreviation =', abbr).get()
@@ -11,7 +11,7 @@ class Repository(db.Model):
         return db.Query(Institute).filter('name = ', name).get()
 
     def find_recent_polls(self, count):
-        return db.Query(Poll).order('-publish_date').fetch(count)
+        return db.Query(Poll).order('publish_date').fetch(count)
 
 
 class Party(db.Model):
@@ -62,6 +62,7 @@ class Poll(db.Model):
                 return result.percentage
         return 0.0
 
+        
 class PollingAverage:
     left_parties = ['S','V','MP']
     right_parties = ['C','FP','M','KD']
@@ -149,6 +150,8 @@ class Chart:
 class PartyAverageBarChart(Chart):
     margin = 10
     param_bar_width = 'chbh='
+    bar_width = 'a' # Automatic
+    bar_spacing = '20'
     marker_color = 'dddddd'
 
     def __init__(self, avg):
@@ -160,7 +163,7 @@ class PartyAverageBarChart(Chart):
         ceil = self.avg.max_percentage() + self.margin
         url = Chart.base_url(self) + '&' + \
               Chart.add(self, Chart.param_marker, 'r,' + self.marker_color + ',0,0,' + str(cutoff_ratio)) + '&' + \
-              Chart.add(self, self.param_bar_width, 'a,20') + '&' + \
+              Chart.add(self, self.param_bar_width, self.bar_width + ',' + self.bar_spacing) + '&' + \
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
 
         data = colors = labels = ''
@@ -222,3 +225,4 @@ class BlockPieChart(Chart):
                Chart.add(self, Chart.param_data, data) + '&' + \
                Chart.add(self, Chart.param_colors, colors) + '&' + \
                Chart.add(self, self.param_legends, legends)                       
+
