@@ -2,7 +2,7 @@ import sys
 import logging
 from google.appengine.ext import db
 
-class Queries(db.Model):
+class Repository(db.Model):
 
     def find_party_by_abbreviation(self, abbr):
         return db.Query(Party).filter('abbreviation =', abbr).get()
@@ -131,6 +131,7 @@ class Chart:
     param_colors = 'chco='
     param_labels = 'chl='
     param_scaling = 'chds='
+    param_legends = 'chdl='
 
     def __init__(self, dimension, type):
         self.dimension = dimension
@@ -146,19 +147,35 @@ class Chart:
 
 
 class PartyAverageBarChart(Chart):
-    param_bar_width = 'chbh'
+    margin = 10
+    param_bar_width = 'chbh='
+    marker_color = 'dddddd'
 
     def __init__(self, avg):
-        Chart.__init__('1000x300', 'bvs')
+        Chart.__init__(self, '1000x300', 'bvs')
         self.avg = avg
 
     def build_url(self):
         cutoff_ratio = 4.0/self.avg.max_percentage()
+        ceil = self.avg.max_percentage() + self.margin
+        url = Chart.base_url(self) + '&' + \
+              Chart.add(self, Chart.param_marker, 'r,' + self.marker_color + ',0,0,' + str(cutoff_ratio)) + '&' + \
+              Chart.add(self, self.param_bar_width, 'a,20') + '&' + \
+              Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
+
+        data = colors = labels = ''
+        for party in Party.all():
+            data += str(self.avg.percentage_of(party)) + ','
+            labels += party.abbreviation + ' ' + str(self.avg.percentage_of(party)) + ' %|'
+            colors += party.color + '|'
+
+        return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
+                     Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
+                     Chart.add(self, Chart.param_labels, labels[0:-1])
 
 
 class PartyResultLineChart(Chart):
     margin = 10
-    param_legends = 'chdl='
 
     def __init__(self, polls):
         Chart.__init__(self, '500x400', 'lxy')
@@ -171,10 +188,8 @@ class PartyResultLineChart(Chart):
               Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
               Chart.add(self, Chart.param_ranges, '1,0,50|1,0,' + str(ceil)) + '&' + \
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
+        data = colors = legends = ''
 
-        data = ''
-        colors = ''
-        legends = ''
         for party in Party.all():
             data += '5,20|'
             colors += party.color + ','
@@ -182,7 +197,6 @@ class PartyResultLineChart(Chart):
             for poll in self.polls:
                 data += str(poll.percentage_of(party)) + ','
             data = data[0:-1] + '|'
-
 
         return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
                      Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
@@ -192,8 +206,19 @@ class PartyResultLineChart(Chart):
 class BlockPieChart(Chart):
 
     def __init__(self, avg):
-        Chart.__init__('600x300', 'p')
+        Chart.__init__(self, '600x300', 'p')
         self.avg = avg
 
     def build_url(self):
-        pass
+        left_sum = self.avg.left_block_percentage()
+        right_sum = self.avg.right_block_percentage()
+        other_sum = self.avg.other_block_percentage()
+
+        data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
+        colors = 'fd3131|85cbeb|adadad'
+        legends = 'S/V/MP ' + str(left_sum) + '%|C/FP/M/KD ' + str(right_sum) + '%|SD/FI/PP/OVR ' + str(other_sum) + '%'
+
+        return Chart.base_url(self) + '&' + \
+               Chart.add(self, Chart.param_data, data) + '&' + \
+               Chart.add(self, Chart.param_colors, colors) + '&' + \
+               Chart.add(self, self.param_legends, legends)                       
