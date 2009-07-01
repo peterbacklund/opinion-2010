@@ -13,6 +13,11 @@ class Repository:
     def find_recent_polls(self, count):
         return db.Query(Poll).order('publish_date').fetch(count)
 
+    def remove_all_polling_data(self):
+        for result in PollingResult.all():
+            result.delete()
+        for poll in Poll.all():
+            poll.delete()
 
 class Party(db.Model):
     name = db.StringProperty(required=True)
@@ -44,8 +49,6 @@ class Poll(db.Model):
     publish_date = db.DateTimeProperty(required=True)
     institute = db.ReferenceProperty(Institute, required=True)
     results = db.ListProperty(db.Key, required=True)
-    sample_size = db.IntegerProperty(required=True)
-    question_asked = db.StringProperty(required=True)
 
     #def my_validate(self, errors):
     #    sum = 0.0
@@ -155,12 +158,12 @@ class PartyAverageBarChart(Chart):
     marker_color = 'dddddd'
 
     def __init__(self, avg):
-        Chart.__init__(self, '1000x300', 'bvs')
+        Chart.__init__(self, '800x300', 'bvs')
         self.avg = avg
 
     def build_url(self):
-        cutoff_ratio = 4.0/self.avg.max_percentage()
-        ceil = self.avg.max_percentage() + self.margin
+        ceil = 40.0
+        cutoff_ratio = 4.0/ceil 
         url = Chart.base_url(self) + '&' + \
               Chart.add(self, Chart.param_marker, 'r,' + self.marker_color + ',0,0,' + str(cutoff_ratio)) + '&' + \
               Chart.add(self, self.param_bar_width, self.bar_width + ',' + self.bar_spacing) + '&' + \
@@ -169,41 +172,53 @@ class PartyAverageBarChart(Chart):
         data = colors = labels = ''
         for party in Party.all():
             data += str(self.avg.percentage_of(party)) + ','
-            labels += party.abbreviation + ' ' + str(self.avg.percentage_of(party)) + ' %|'
+            labels += party.abbreviation + ' ' + ('%.1f' % self.avg.percentage_of(party)) + ' %|'
             colors += party.color + '|'
 
         return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
                      Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
+                     Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
+                     Chart.add(self, Chart.param_ranges, '0,0,0|1,0,' + str(ceil)) + '&' + \
                      Chart.add(self, Chart.param_labels, labels[0:-1])
 
 
 class PartyResultLineChart(Chart):
     margin = 10
+    param_line_style = 'chls='
 
     def __init__(self, polls):
-        Chart.__init__(self, '500x400', 'lxy')
+        Chart.__init__(self, '500x600', 'lxy')
         self.polls = polls
         self.avg = PollingAverage(polls)
 
     def build_url(self):
-        ceil = self.avg.max_percentage() + self.margin
+        ceil = 40.0
         url = Chart.base_url(self) + \
               Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
-              Chart.add(self, Chart.param_ranges, '1,0,50|1,0,' + str(ceil)) + '&' + \
+              Chart.add(self, Chart.param_ranges, '1,0,' + str(len(self.polls)) + '|1,0,' + str(ceil)) + ',5&' + \
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
-        data = colors = legends = ''
+
+        data = colors = legends = line_style = ''
 
         for party in Party.all():
-            data += '5,20|'
+            data += '-1|'
             colors += party.color + ','
-            legends += party.name + '|'
+            legends += party.abbreviation + '|'
+            line_style += '3|'
             for poll in self.polls:
                 data += str(poll.percentage_of(party)) + ','
             data = data[0:-1] + '|'
+        x_axis = ''
+        i = 1
+        for poll in self.polls:
+            x_axis += '|' + str(i)
+            i += 1
 
         return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
                      Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
-                     Chart.add(self, self.param_legends, legends[0:-1])
+                     Chart.add(self, self.param_legends, legends[0:-1]) + '&' + \
+                     Chart.add(self, 'chxl=0:', x_axis) + '&' + \
+                     Chart.add(self, self.param_line_style, line_style[0:-1])
 
 
 class BlockPieChart(Chart):
@@ -219,7 +234,7 @@ class BlockPieChart(Chart):
 
         data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
         colors = 'fd3131|85cbeb|adadad'
-        legends = 'S/V/MP ' + str(left_sum) + '%|C/FP/M/KD ' + str(right_sum) + '%|SD/FI/PP/OVR ' + str(other_sum) + '%'
+        legends = 'Oppositionen ' + ('%.1f' % left_sum) + '%|Regeringen ' + ('%.1f' % right_sum) + '%|Ovriga ' + ('%.1f' % other_sum) + '%'
 
         return Chart.base_url(self) + '&' + \
                Chart.add(self, Chart.param_data, data) + '&' + \
