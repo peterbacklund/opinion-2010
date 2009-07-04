@@ -1,0 +1,64 @@
+body {
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+
+img {
+    float: left;
+}
+
+h1,h2 {
+}
+
+div#averages {
+    width: 1250px;
+}
+
+div#party_average {
+    width: 600px;
+    margin-right: 20px;
+    float: left;
+}
+
+div#block_average {
+    width: 300px;
+    margin-right: 20px;
+    float: left;
+}
+
+div#polls {
+    width: 300px;
+    float: left;
+}
+
+table {
+    margin: 0 10px;
+}
+
+table td {
+    padding: 4px 8px;
+}
+
+tr:hover {
+    background-color: #eee;
+}
+
+caption {
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+div#results {
+    margin-top: 20px;
+    width: 1250px;
+}
+
+div#results_chart {
+    float: left;
+}
+
+div#results_table {
+    float: left;
+}
+

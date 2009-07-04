@@ -20,6 +20,7 @@ class MainPage(webapp.RequestHandler):
         partyAverage = PartyAverageBarChart(avg).build_url()
         partyResult = PartyResultLineChart(polls).build_url()
         block = BlockPieChart(avg).build_url()
+        seats = SeatsChart(avg).build_url();
 
         # Not cool
         party_percentages_html = ''
@@ -35,6 +36,7 @@ class MainPage(webapp.RequestHandler):
             'block' : block,
             'polls' : polls,
             'parties' : parties,
+            'seats' : seats,
             'party_percentages_html' : party_percentages_html
         }
 

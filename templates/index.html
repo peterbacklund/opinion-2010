@@ -8,31 +8,56 @@
 </head>
 <body>
     <h1>Opinion 2010</h1>
-    <h2>Nyheter</h2>
     <ul>
         <li><strong>2009-07-01:</strong>
             Premiär för Opinion2010.se, lagom till Almedalsveckan!
         </li>
     </ul>
-    <h2>Medelvärde av de senaste 10 mätningarna</h2>
-    <div><img src="{{ partyAverage }}" alt=""/></div>
-    <h2>Blockens fördelning enligt medelvärde av de senaste 10 mätningarna</h2>
-    <div><img src="{{ block }}" alt=""/></div>
-    <h2>Resultat av de senaste 10 mätningarna</h2>
-    <div>
-        <img src="{{ partyResult }}" alt=""/>
-        <p>
-        <table border="1">
-            <caption>Mätningar</caption>
-            <tr>
-                <th>Parti</th>
+
+    <div id="averages">
+        <div id="party_average">
+            <img src="{{ partyAverage }}" alt=""/>
+        </div>
+        <div id="block_average">
+            <img src="{{ block }}" alt=""/>
+            <img src="{{ seats }}" alt=""/>
+        </div>
+        <div id="polls">
+            <table cellspacing="0">
+                <caption>Mätningar</caption>
                 {% for poll in polls %}
-                <th>{{ forloop.counter }}: {{ poll.institute.name }} {{ poll.publish_date|date:"Y-m-d" }}</th>
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ poll.institute.name }}</td>
+                    <td><a href="" target="_blank">{{ poll.publish_date|date:"Y-m-d" }}</a></td>
+                </tr>
                 {% endfor %}
-            </tr>
-            {{ party_percentages_html }}
-        </table>
-        </p>
+            </table>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+
+    <div id="results">
+        <div id="results_chart">
+            <img id="result" src="{{ partyResult }}" alt=""/>
+        </div>
+        <div id="results_table">
+            <table cellspacing="0">
+                <caption>Mätresultat</caption>
+                <tr>
+                    <td></td>
+                    <td colspan="100"><strong>Mätning</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Parti</strong></td>
+                    {% for poll in polls %}
+                    <td><strong>{{ forloop.counter }}</strong></td>
+                    {% endfor %}
+                </tr>
+                {{ party_percentages_html }}
+            </table>
+        </div>
     </div>
 </body>
 </html>
