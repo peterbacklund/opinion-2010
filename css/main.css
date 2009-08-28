@@ -10,8 +10,11 @@ img {
 h1,h2 {
 }
 
+p.tip {
+    font-size: 9pt;    
+}
+
 div#averages {
-    width: 1250px;
 }
 
 div#party_average {
@@ -27,15 +30,16 @@ div#block_average {
 }
 
 div#polls {
-    width: 300px;
+    width: 250px;
     float: left;
 }
 
 table {
-    margin: 0 10px;
+    width: 100%;
+    border: 1px solid #ddd;
 }
 
-table td {
+table td,th {
     padding: 4px 8px;
 }
 
@@ -45,13 +49,11 @@ tr:hover {
 
 caption {
     font-weight: bold;
-    border-bottom: 1px solid #eee;
     margin-bottom: 5px;
 }
 
 div#results {
-    margin-top: 20px;
-    width: 1250px;
+    margin-top: 40px;
 }
 
 div#results_chart {
@@ -59,6 +61,7 @@ div#results_chart {
 }
 
 div#results_table {
+    margin: 0 10px;
     float: left;
 }
 

@@ -27,6 +27,13 @@ class Party(db.Model):
     def find_by_abbreviation(self, abbr):
         return db.GqlQuery("")
 
+    def is_left(self):
+        return self.abbreviation in ['S','V','MP']
+
+    def is_right(self):
+        return self.abbreviation in ['M','FP','C','KD']
+
+
 class Institute(db.Model):
     name = db.StringProperty(required=True)
 
@@ -65,10 +72,8 @@ class Poll(db.Model):
                 return result.percentage
         return 0.0
 
-        
+
 class PollingAverage:
-    left_parties = ['S','V','MP']
-    right_parties = ['C','FP','M','KD']
 
     def __init__(self, polls):
         self.percentages = {}
@@ -90,6 +95,34 @@ class PollingAverage:
         else:
             return 0.0
 
+    def top_party(self, parties):
+        top_percentage = 0.0
+        top_party = None
+        for party, percentage in parties.iteritems():
+            if percentage >= top_percentage:
+                top_party = party
+                top_percentage = percentage
+
+        return top_party
+
+    def seats(self):
+        limit = 4.0
+        qualified = {}
+        seats = {}
+        for party, percentage in self.percentages.iteritems():
+            seats[party] = 0
+            if percentage >= limit:
+                qualified[party] = percentage / 1.4
+
+        remaining = 349
+        while remaining > 0:
+            top = self.top_party(qualified)
+            seats[top] += 1
+            qualified[top] = self.percentages[top] / (1.0 + seats[top] * 2.0)
+            remaining -= 1
+
+        return seats
+
     def max_percentage(self):
         max = 0.0
         for k, v in self.percentages.iteritems():
@@ -101,7 +134,7 @@ class PollingAverage:
         sum = 0
         for k, v in self.percentages.iteritems():
             party = db.get(k)
-            if party.abbreviation in self.left_parties:
+            if party.is_left():
                 sum += v
         return sum
 
@@ -109,7 +142,7 @@ class PollingAverage:
         sum = 0
         for k, v in self.percentages.iteritems():
             party = db.get(k)
-            if party.abbreviation in self.right_parties:
+            if party.is_right():
                 sum += v
         return sum
 
@@ -117,7 +150,7 @@ class PollingAverage:
         sum = 0
         for k, v in self.percentages.iteritems():
             party = db.get(k)
-            if not (party.abbreviation in self.left_parties) and not (party.abbreviation in self.right_parties):
+            if not (party.is_left()) and not (party.is_right()):
                 sum += v
         return sum                
 
@@ -256,23 +289,46 @@ class SeatsChart(Chart):
         self.avg = avg
 
     def build_url(self):
-        ceil = 180.0
-        left_sum = self.avg.left_block_percentage()
-        right_sum = self.avg.right_block_percentage()
-        other_sum = self.avg.other_block_percentage()
+        ceil = 200.0
 
-        #data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
-        # TODO
-        data = '100,80,1|30,40,1|35,35,0|0,15,0' 
+        left_sum = right_sum = other_sum = 0
+        #bars = [[],[],[]]
+        #colors = ''
+        for k, v in self.avg.seats().iteritems():
+            party = db.get(k)
+            if party.is_left():
+                #bars[0].append(v)
+                left_sum += v
+            elif party.is_right():
+                #bars[1].append(v)
+                right_sum += v
+            else:
+                #bars[2].append(v)
+                other_sum += v
+            #colors += party.color + '|'
+
+        #data = ''
+        #for i in range(0,4):
+        #    for bar in bars:
+        #        if len(bar) > 0:
+        #            data += str(bar.pop()) + ','
+        #        else:
+        #            data += '0,'
+        #    data = data[0:-1] + '|'
+
+        #data = data[0:-1]
+        #colors = colors[0:-1]
+
+        data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
+        labels = 'Soc. ' + str(left_sum) + ' |Borg. ' + str(right_sum) + ' |&Ouml;vr. ' + str(other_sum)
         colors = 'fd3131|85cbeb|adadad'
-        labels = 'Soc.|Borg.|&Ouml;vr.'
 
         return Chart.base_url(self) + '&' + \
                Chart.add(self, Chart.param_data, data) + '&' + \
                Chart.add(self, Chart.param_colors, colors) + '&' + \
                Chart.add(self, 'chbh=', 'a,30') + '&' + \
                Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
-               Chart.add(self, Chart.param_ranges, '0,0,0|1,0,' + str(ceil)) + '&' + \
+               Chart.add(self, Chart.param_ranges, '0,0,0|1,0,' + str(ceil)) + ',25&' + \
                Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&' + \
                Chart.add(self, 'chtt=', 'Mandatf&ouml;rdelning') + '&' + \
                Chart.add(self, Chart.param_labels, labels)

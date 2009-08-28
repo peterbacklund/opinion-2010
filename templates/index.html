@@ -13,7 +13,6 @@
             Premiär för Opinion2010.se, lagom till Almedalsveckan!
         </li>
     </ul>
-
     <div id="averages">
         <div id="party_average">
             <img src="{{ partyAverage }}" alt=""/>
@@ -25,6 +24,11 @@
         <div id="polls">
             <table cellspacing="0">
                 <caption>Mätningar</caption>
+                <tr>
+                    <th></th>
+                    <th>Institut</th>
+                    <th>Publicerad</th>
+                </tr>
                 {% for poll in polls %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
@@ -33,10 +37,11 @@
                 </tr>
                 {% endfor %}
             </table>
+            <p class="tip">Klicka på en rad för att visa resultatet av bara den mätningen.
+                Håll nere CTRL om du vill välja flera och visa medelvärdet av dem.</p>
         </div>
         <div style="clear: both;"></div>
     </div>
-
 
     <div id="results">
         <div id="results_chart">
@@ -46,17 +51,20 @@
             <table cellspacing="0">
                 <caption>Mätresultat</caption>
                 <tr>
-                    <td></td>
-                    <td colspan="100"><strong>Mätning</strong></td>
+                    <th></th>
+                    <th colspan="100"><strong>Mätning</strong></th>
                 </tr>
                 <tr>
-                    <td><strong>Parti</strong></td>
+                    <th><strong>Parti</strong></th>
                     {% for poll in polls %}
-                    <td><strong>{{ forloop.counter }}</strong></td>
+                    <th><strong>{{ forloop.counter }}</strong></th>
                     {% endfor %}
+                    <th><strong>M</strong></th>
                 </tr>
                 {{ party_percentages_html }}
             </table>
+            <p class="tip">Klicka på en rad för att visa resultatet för bara det partiet.
+                Håll nere CTRL om du vill välja flera och visa medelvärdet av dem.</p>
         </div>
     </div>
 </body>

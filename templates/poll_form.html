@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+    <title>Opinion 2010</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link href="/css/main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <h1>Lägg till resultat</h1>
+    <form action="/poll/store" method="post">
+      <p>Institut:
+      <select name="institute_key">
+        {% for institute in institutes %}
+        <option value="{{ institute.key }}">{{ institute.name }}</option>
+        {% endfor %}
+      </select>
+      </p>
+      <p>
+      Publicerad (yyyy-MM-dd): <input name="publish_date"/>
+      </p>
+      <table style="width: 120px;">
+        <thead>
+          <tr>
+            <th>Parti</th>
+            <th>Resultat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for party in parties %}
+          <tr>
+            <td>{{ party.name }}</td>
+            <td><input name="{{ party.abbreviation }}"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>
+        <input type="submit" value="Spara"/>
+      </p>
+    </form>
+</body>
+</html>
