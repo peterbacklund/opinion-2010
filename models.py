@@ -23,6 +23,7 @@ class Party(db.Model):
     name = db.StringProperty(required=True)
     abbreviation = db.StringProperty(required=True)
     color = db.StringProperty(required=True)
+    position = db.IntegerProperty()
 
     def find_by_abbreviation(self, abbr):
         return db.GqlQuery("")
@@ -191,7 +192,7 @@ class PartyAverageBarChart(Chart):
     marker_color = 'dddddd'
 
     def __init__(self, avg):
-        Chart.__init__(self, '600x400', 'bvs')
+        Chart.__init__(self, '500x400', 'bvs')
         self.avg = avg
 
     def build_url(self):
@@ -206,7 +207,7 @@ class PartyAverageBarChart(Chart):
         data = colors = labels = ''
         for party in Party.all():
             data += str(self.avg.percentage_of(party)) + ','
-            labels += party.abbreviation + ' ' + ('%.1f' % self.avg.percentage_of(party)) + ' %|'
+            labels += party.abbreviation + ' ' + ('%.1f' % self.avg.percentage_of(party)) + '|'
             colors += party.color + '|'
 
         return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
@@ -221,7 +222,7 @@ class PartyResultLineChart(Chart):
     param_line_style = 'chls='
 
     def __init__(self, polls):
-        Chart.__init__(self, '600x500', 'lxy')
+        Chart.__init__(self, '500x400', 'lxy')
         self.polls = polls
         self.avg = PollingAverage(polls)
 
@@ -230,6 +231,7 @@ class PartyResultLineChart(Chart):
         url = Chart.base_url(self) + \
               Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
               Chart.add(self, Chart.param_ranges, '1,0,' + str(len(self.polls)) + '|1,0,' + str(ceil)) + ',5&' + \
+              Chart.add(self, 'chtt=', 'Utveckling') + '&' + \
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
 
         data = colors = legends = line_style = ''
@@ -258,7 +260,7 @@ class PartyResultLineChart(Chart):
 class BlockPieChart(Chart):
 
     def __init__(self, avg):
-        Chart.__init__(self, '300x200', 'bvs')
+        Chart.__init__(self, '250x200', 'bvs')
         self.avg = avg
 
     def build_url(self):
@@ -269,7 +271,7 @@ class BlockPieChart(Chart):
 
         data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
         colors = 'fd3131|85cbeb|adadad'
-        labels = 'Soc. ' + ('%.1f' % left_sum) + '%|Borg. ' + ('%.1f' % right_sum) + '%|&Ouml;vr. ' + ('%.1f' % other_sum) + '%'
+        labels = 'Soc. ' + ('%.1f' % left_sum) + '|Borg. ' + ('%.1f' % right_sum) + '|&Ouml;vr. ' + ('%.1f' % other_sum)
 
         return Chart.base_url(self) + '&' + \
                Chart.add(self, Chart.param_data, data) + '&' + \
@@ -285,7 +287,7 @@ class BlockPieChart(Chart):
 class SeatsChart(Chart):
 
     def __init__(self, avg):
-        Chart.__init__(self, '300x200', 'bvs')
+        Chart.__init__(self, '250x200', 'bvs')
         self.avg = avg
 
     def build_url(self):

@@ -26,10 +26,10 @@ class MainPage(webapp.RequestHandler):
         # Not cool
         party_percentages_html = ''
         for party in parties:
-            party_percentages_html += '<tr><td>' + party.name + '</td>'
+            party_percentages_html += '<tr><td>' + party.abbreviation + '</td>'
             for poll in polls:
                 party_percentages_html += '<td>' + str(poll.percentage_of(party)) + '</td>'
-            party_percentages_html += '<td><strong>' + str(avg.percentage_of(party)) + '</strong></td>'
+            party_percentages_html += '<td><strong>' + ("%10.1f" % avg.percentage_of(party)) + '</strong></td>'
             party_percentages_html += '</tr>'
 
         template_values = {
@@ -54,9 +54,6 @@ class AddPoll(webapp.RequestHandler):
 
 class StorePoll(webapp.RequestHandler):
     def post(self):
-    #
-    # TODO convert to proper data types
-    #
         try:
             r = self.request
             institute_key = r.get('institute_key')
@@ -74,7 +71,6 @@ class StorePoll(webapp.RequestHandler):
             poll = Poll(publish_date = publish_date, institute = institute, results = polling_results)
             poll.save()
             self.redirect('/')
-            #self.response.out.write('OK!')
         except:
             self.response.out.write('Error: ' + str(sys.exc_info()))
 

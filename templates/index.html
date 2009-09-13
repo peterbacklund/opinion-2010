@@ -8,11 +8,7 @@
 </head>
 <body>
     <h1>Opinion 2010</h1>
-    <ul>
-        <li><strong>2009-07-01:</strong>
-            Premiär för Opinion2010.se, lagom till Almedalsveckan!
-        </li>
-    </ul>
+    <hr/>
     <div id="averages">
         <div id="party_average">
             <img src="{{ partyAverage }}" alt=""/>
@@ -21,50 +17,42 @@
             <img src="{{ block }}" alt=""/>
             <img src="{{ seats }}" alt=""/>
         </div>
-        <div id="polls">
-            <table cellspacing="0">
-                <caption>Mätningar</caption>
-                <tr>
-                    <th></th>
-                    <th>Institut</th>
-                    <th>Publicerad</th>
-                </tr>
-                {% for poll in polls %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ poll.institute.name }}</td>
-                    <td><a href="" target="_blank">{{ poll.publish_date|date:"Y-m-d" }}</a></td>
-                </tr>
-                {% endfor %}
-            </table>
-            <p class="tip">Klicka på en rad för att visa resultatet av bara den mätningen.
-                Håll nere CTRL om du vill välja flera och visa medelvärdet av dem.</p>
+        <div id="results_chart">
+            <img id="result" src="{{ partyResult }}" alt=""/>
         </div>
         <div style="clear: both;"></div>
     </div>
 
     <div id="results">
-        <div id="results_chart">
-            <img id="result" src="{{ partyResult }}" alt=""/>
-        </div>
+      <!--div id="polls">
+          <table cellspacing="0">
+              <caption>Mätningar</caption>
+              <tr>
+                  <th></th>
+                  <th>Institut</th>
+                  <th>Publicerad</th>
+              </tr>
+              {% for poll in polls %}
+              <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ poll.institute.name }}</td>
+                  <td>{{ poll.publish_date|date:"Y-m-d" }}</td>
+              </tr>
+              {% endfor %}
+          </table>
+      </div-->
         <div id="results_table">
             <table cellspacing="0">
-                <caption>Mätresultat</caption>
+                <caption>10 senaste mätningarna</caption>
                 <tr>
                     <th></th>
-                    <th colspan="100"><strong>Mätning</strong></th>
-                </tr>
-                <tr>
-                    <th><strong>Parti</strong></th>
                     {% for poll in polls %}
-                    <th><strong>{{ forloop.counter }}</strong></th>
+                    <th>{{ forloop.counter }}. {{ poll.institute.name }}<br/>{{ poll.publish_date|date:"y-m-d" }}</th>
                     {% endfor %}
-                    <th><strong>M</strong></th>
+                    <th>Medelv&auml;rde</th>
                 </tr>
                 {{ party_percentages_html }}
             </table>
-            <p class="tip">Klicka på en rad för att visa resultatet för bara det partiet.
-                Håll nere CTRL om du vill välja flera och visa medelvärdet av dem.</p>
         </div>
     </div>
 </body>
