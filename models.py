@@ -11,7 +11,7 @@ class Repository:
         return db.Query(Institute).filter('name = ', name).get()
 
     def find_recent_polls(self, count):
-        return db.Query(Poll).order('publish_date').fetch(count)
+        return db.Query(Poll).order('-publish_date').fetch(count)
 
     def remove_all_polling_data(self):
         for result in PollingResult.all():
