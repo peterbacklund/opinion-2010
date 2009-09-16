@@ -2,7 +2,7 @@ body {
   font-family: sans-serif;
   font-size: 10pt;
   margin: 0;
-  padding: 10px;
+  padding: 20px;
 }
 
 img {
@@ -10,10 +10,16 @@ img {
 }
 
 h1 {
+  font-size: 16pt;
 }
 
 h2 {
   font-size: 11.5pt;  
+}
+
+h3 {
+  font-size: 10pt;
+  font-weight: normal;
 }
 
 div {
@@ -25,21 +31,26 @@ div#header {
 }
 
 div#sidebar {
-  width: 200px;
+  width: 250px;
   float: left;
   padding: 10px 20px;
 }
 
-div#sidebar ul {
+ul#news {
   margin: 0;
   padding: 0;
 }
 
-div#sidebar li {
+ul#news li {
   margin: 8px 0;
   padding: 0;
   list-style: square inside;
   font-size: 9pt;
+  line-height: 18px;
+}
+
+span.date {
+  color: #aaa;
 }
 
 div#main {
@@ -50,14 +61,11 @@ div#main {
 }
 
 div#footer {
+  width: 800px;
+  padding: 0 20px;
+  font-size: 9pt;
+  border-right: 1px solid #ccc;
   clear: both;
-}
-
-div#prediction {
-  border: 2px solid red;
-  padding: 10px;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 div.row {
@@ -72,7 +80,7 @@ div.col1 {
 
 div.col2 {
   width: 250px;
-  margin-left: 20px;
+  margin-left: 30px;
   float: left;
 }
 
@@ -88,6 +96,11 @@ table {
   width: 100%;
   border: 1px solid #ddd;
   font-size: 9pt;
+}
+
+table#polls {
+  margin-left: 20px;
+  width: 200px;
 }
 
 .left {
@@ -117,7 +130,16 @@ td {
   text-align: right;
 }
 
-tr:hover {
-  background-color: #eee;
+td.party_img {
+  width: 40px;
+  height: 55px;
+  background: white;
 }
 
+tr:hover {
+  background: #efefef;
+}
+
+td.party_img:hover {
+  background: white;
+}

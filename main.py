@@ -24,10 +24,19 @@ class MainPage(webapp.RequestHandler):
         seats = SeatsChart(avg).build_url();
 
         # Not cool
+        
         party_percentages_html = ''
+        polls_reversed = []
+        for poll in polls:
+          polls_reversed.append(poll)
+        polls_reversed.reverse()
+
         for party in parties:
-            party_percentages_html += '<tr><td>' + party.abbreviation + '</td>'
-            for poll in polls:
+            party_percentages_html += \
+              '<tr><td class="party_img"><img src="/img/' + party.abbreviation + \
+              '.jpg" alt="' + party.name + '" title="' + party.name + \
+              '"/></td>'
+            for poll in polls_reversed:
                 party_percentages_html += '<td>' + str(poll.percentage_of(party)) + '</td>'
             party_percentages_html += '<td><strong>' + ("%10.1f" % avg.percentage_of(party)) + '</strong></td>'
             party_percentages_html += '</tr>'

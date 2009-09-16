@@ -1,11 +1,14 @@
 application: opinion-2010
-version: 1
+version: 2
 runtime: python
 api_version: 1
 
 handlers:
 - url: /css
   static_dir: css
+
+- url: /img
+  static_dir: img
 
 - url: /.*
   script: main.py

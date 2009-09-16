@@ -9,23 +9,25 @@
 <body>
   <div id="header">
     <h1>Opinion 2010</h1>
+    <h3>Opinionsläget inför riksdagsvalet 2010</h3>
   </div>
   <div id="main">
     <div class="row">
       <div class="col1">
-        <img src="{{ partyAverage }}" alt=""/>
+        <img src="{{ partyAverage }}" alt="" width="500" height="400" />
       </div>
       <div class="col2">
-        <img src="{{ block }}" alt=""/>
-        <img src="{{ seats }}" alt=""/>
+        <img src="{{ block }}" alt="" width="250" height="200"/>
+        <img src="{{ seats }}" alt="" width="250" height="200"/>
       </div>
+      <div style="clear: both">&nbsp;</div>
     </div>
     <div class="row">
       <div class="col1">
-        <img src="{{ partyResult }}" alt=""/>
+        <img src="{{ partyResult }}" alt="" width="500" height="400" />
       </div>
       <div class="col2">
-        <table cellspacing="0" cellpadding="0">
+        <table id="polls" cellspacing="0" cellpadding="0">
             <caption>Mätningar</caption>
             <tr>
                 <th></th>
@@ -41,6 +43,7 @@
             {% endfor %}
         </table>
       </div>
+      <div style="clear: both">&nbsp;</div>
     </div>
     <div class="row">
       <table cellspacing="0">
@@ -48,7 +51,7 @@
           <tr>
               <th></th>
               {% for poll in polls %}
-              <th>{{ forloop.counter }}</th>
+              <th>{{ forloop.revcounter }}</th>
               {% endfor %}
               <th>Snitt</th>
           </tr>
@@ -57,18 +60,33 @@
     </div>
   </div>
   <div id="sidebar">
-    <h2>Prognos</h2>
+    <!--h2>Prognos</h2>
     <div id="prediction">
       Maktskifte  
-    </div>
+    </div-->
     <h2>Nyheter</h2>
-    <ul>
-      <li><strong>2009-09-12</strong><br/>Nya mätningar från Sifo och Skop.</li>
-      <li><strong>2009-09-09</strong><br/>Premiär för Opinion2010.se!</li>
+    <ul id="news">
+      <li>Nya mätningar från Sifo och Skop.<br/><span class="date">2009-09-13</span></li>
+      <li>Premiär för Opinion2010.se!<br/><span class="date">2009-09-09</span></li>
     </ul>
   </div>
   <div id="footer">
-    <em>Opinion2010.se</em>
+    <em>
+      <p>
+        Opinion2010.se är en helt ideell samhällstjänst, utan partipolitisk anknytning.
+      </p>
+      <p>  
+        Källmaterialet utgörs av vad respektive opinionsinstitut publicerar på webben,
+        med reservation för misstag i hanteringen.
+      </p>
+      <p>
+        Mandatfördelningen tar inte och kan inte ta hänsyn till eventuella utjämningsmandat,
+        eftersom de styrs av det slutgiltiga valresultatet.
+      </p>
+      <p>
+        Frågor kring tjänsten kan skickas till info@opinion2010.se.
+      </p>
+    </em>
   </div>
 </body>
 </html>

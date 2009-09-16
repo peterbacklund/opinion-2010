@@ -223,7 +223,10 @@ class PartyResultLineChart(Chart):
 
     def __init__(self, polls):
         Chart.__init__(self, '500x400', 'lxy')
-        self.polls = polls
+        self.polls = []
+        for poll in polls:
+          self.polls.append(poll)
+        self.polls.reverse()   
         self.avg = PollingAverage(polls)
 
     def build_url(self):
@@ -245,10 +248,10 @@ class PartyResultLineChart(Chart):
                 data += str(poll.percentage_of(party)) + ','
             data = data[0:-1] + '|'
         x_axis = ''
-        i = 1
+        i = len(self.polls)
         for poll in self.polls:
             x_axis += '|' + str(i)
-            i += 1
+            i -= 1
 
         return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
                      Chart.add(self, Chart.param_colors, colors[0:-1]) + '&' + \
