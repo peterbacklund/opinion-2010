@@ -7,53 +7,68 @@
     <link href="/css/main.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
+  <div id="header">
     <h1>Opinion 2010</h1>
-    <hr/>
-    <div id="averages">
-        <div id="party_average">
-            <img src="{{ partyAverage }}" alt=""/>
-        </div>
-        <div id="block_average">
-            <img src="{{ block }}" alt=""/>
-            <img src="{{ seats }}" alt=""/>
-        </div>
-        <div id="results_chart">
-            <img id="result" src="{{ partyResult }}" alt=""/>
-        </div>
-        <div style="clear: both;"></div>
+  </div>
+  <div id="main">
+    <div class="row">
+      <div class="col1">
+        <img src="{{ partyAverage }}" alt=""/>
+      </div>
+      <div class="col2">
+        <img src="{{ block }}" alt=""/>
+        <img src="{{ seats }}" alt=""/>
+      </div>
     </div>
-
-    <div id="results">
-      <!--div id="polls">
-          <table cellspacing="0">
-              <caption>Mätningar</caption>
-              <tr>
-                  <th></th>
-                  <th>Institut</th>
-                  <th>Publicerad</th>
-              </tr>
+    <div class="row">
+      <div class="col1">
+        <img src="{{ partyResult }}" alt=""/>
+      </div>
+      <div class="col2">
+        <table cellspacing="0" cellpadding="0">
+            <caption>Mätningar</caption>
+            <tr>
+                <th></th>
+                <th>Institut</th>
+                <th>Publicerad</th>
+            </tr>
+            {% for poll in polls %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="left">{{ poll.institute.name }}</td>
+                <td class="right">{{ poll.publish_date|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <table cellspacing="0">
+          <caption>10 senaste mätningarna</caption>
+          <tr>
+              <th></th>
               {% for poll in polls %}
-              <tr>
-                  <td>{{ forloop.counter }}</td>
-                  <td>{{ poll.institute.name }}</td>
-                  <td>{{ poll.publish_date|date:"Y-m-d" }}</td>
-              </tr>
+              <th>{{ forloop.counter }}</th>
               {% endfor %}
-          </table>
-      </div-->
-        <div id="results_table">
-            <table cellspacing="0">
-                <caption>10 senaste mätningarna</caption>
-                <tr>
-                    <th></th>
-                    {% for poll in polls %}
-                    <th>{{ forloop.counter }}. {{ poll.institute.name }}<br/>{{ poll.publish_date|date:"y-m-d" }}</th>
-                    {% endfor %}
-                    <th>Medelv&auml;rde</th>
-                </tr>
-                {{ party_percentages_html }}
-            </table>
-        </div>
+              <th>Snitt</th>
+          </tr>
+          {{ party_percentages_html }}
+      </table>
     </div>
+  </div>
+  <div id="sidebar">
+    <h2>Prognos</h2>
+    <div id="prediction">
+      Maktskifte  
+    </div>
+    <h2>Nyheter</h2>
+    <ul>
+      <li><strong>2009-09-12</strong><br/>Nya mätningar från Sifo och Skop.</li>
+      <li><strong>2009-09-09</strong><br/>Premiär för Opinion2010.se!</li>
+    </ul>
+  </div>
+  <div id="footer">
+    <em>Opinion2010.se</em>
+  </div>
 </body>
 </html>

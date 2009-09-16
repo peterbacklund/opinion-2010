@@ -1,40 +1,111 @@
 body {
-    font-family: sans-serif;
-    font-size: 10pt;
+  font-family: sans-serif;
+  font-size: 10pt;
+  margin: 0;
+  padding: 10px;
 }
 
 img {
-    float: left;
+  float: left;
 }
 
-h1,h2 {
+h1 {
 }
 
-div#averages {
-  width: 1300px;
+h2 {
+  font-size: 11.5pt;  
 }
 
-div#party_average {
-    width: 500px;
-    margin-right: 20px;
-    float: left;
+div {
 }
 
-div#block_average {
-    width: 250px;
-    margin-right: 20px;
-    float: left;
+div#header {
+  border-bottom: 1px solid #ccc;
+  clear: both;
 }
 
-div#polls {
-    width: 500px;
-    float: left;
+div#sidebar {
+  width: 200px;
+  float: left;
+  padding: 10px 20px;
+}
+
+div#sidebar ul {
+  margin: 0;
+  padding: 0;
+}
+
+div#sidebar li {
+  margin: 8px 0;
+  padding: 0;
+  list-style: square inside;
+  font-size: 9pt;
+}
+
+div#main {
+  width: 800px;
+  float: left;
+  border-right: 1px solid #ccc;
+  padding: 20px;
+}
+
+div#footer {
+  clear: both;
+}
+
+div#prediction {
+  border: 2px solid red;
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+div.row {
+  margin-bottom: 30px;
+  clear: both;
+}
+
+div.col1 {
+  width: 500px;
+  float: left;
+}
+
+div.col2 {
+  width: 250px;
+  margin-left: 20px;
+  float: left;
+}
+
+div.clear {
+  clear: both;
+}
+
+div.row img {
+  float: left;
 }
 
 table {
-    width: 100%;
-    border: 1px solid #ddd;
-    font-size: 9pt;
+  width: 100%;
+  border: 1px solid #ddd;
+  font-size: 9pt;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}
+
+caption {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+td, th {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
 }
 
 th {
@@ -46,30 +117,7 @@ td {
   text-align: right;
 }
 
-td, th {
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-}
-
 tr:hover {
-    background-color: #eee;
-}
-
-caption {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-div#results {
-  width: 1300px;
-  margin-top: 40px;
-}
-
-div#results_chart {
-    float: left;
-}
-
-div#results_table {
-    margin: 0 10px;
+  background-color: #eee;
 }
 

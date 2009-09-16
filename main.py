@@ -17,7 +17,7 @@ class MainPage(webapp.RequestHandler):
         polls = repository.find_recent_polls(10)
         avg = PollingAverage(polls)
 
-        # TODO memcache this
+        # TODO memcache this behind a UrlFactory
         partyAverage = PartyAverageBarChart(avg).build_url()
         partyResult = PartyResultLineChart(polls).build_url()
         block = BlockPieChart(avg).build_url()
@@ -53,23 +53,27 @@ class AddPoll(webapp.RequestHandler):
         self.response.out.write(template.render('templates/poll_form.html', model))
 
 class StorePoll(webapp.RequestHandler):
+
+    # TODO move to repository (?)
+    def do_work(self, request):
+      institute_key = request.get('institute_key')
+      publish_date = datetime.strptime(request.get('publish_date'), '%Y-%m-%d')
+
+      institute = Institute.get(institute_key)
+      polling_results = []
+      for party in Party.all():
+          percentage = float(request.get(party.abbreviation))
+          pr = PollingResult(party=party, percentage=percentage)
+          pr.save()
+          polling_results.append(pr.key())
+
+      logging.info(str(publish_date) + ", " + institute.name + ", " + str(polling_results))
+      poll = Poll(publish_date = publish_date, institute = institute, results = polling_results)
+      poll.save()
+
     def post(self):
         try:
-            r = self.request
-            institute_key = r.get('institute_key')
-            institute = Institute.get(institute_key)
-            publish_date = datetime.strptime(r.get('publish_date'), '%Y-%m-%d')
-
-            polling_results = []
-            for party in Party.all():
-                percentage = float(r.get(party.abbreviation))
-                pr = PollingResult(party=party, percentage=percentage)
-                pr.save()
-                polling_results.append(pr.key())
-
-            logging.info(str(publish_date) + ", " + institute.name + ", " + str(polling_results))                
-            poll = Poll(publish_date = publish_date, institute = institute, results = polling_results)
-            poll.save()
+            db.run_in_transaction(self.do_work(self.request))
             self.redirect('/')
         except:
             self.response.out.write('Error: ' + str(sys.exc_info()))
