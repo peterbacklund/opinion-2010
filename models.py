@@ -205,7 +205,7 @@ class PartyAverageBarChart(Chart):
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
 
         data = colors = labels = ''
-        for party in Party.all():
+        for party in Party.all().order('position'):
             data += str(self.avg.percentage_of(party)) + ','
             labels += party.abbreviation + ' ' + ('%.1f' % self.avg.percentage_of(party)) + '|'
             colors += party.color + '|'
@@ -239,7 +239,7 @@ class PartyResultLineChart(Chart):
 
         data = colors = legends = line_style = ''
 
-        for party in Party.all():
+        for party in Party.all().order('position'):
             data += '-1|'
             colors += party.color + ','
             legends += party.abbreviation + '|'
