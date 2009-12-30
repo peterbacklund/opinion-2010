@@ -67,32 +67,28 @@ class Poll(db.Model):
     #    return errors
 
     def percentage_of(self, party):
-        results = db.get(self.results)
-        for result in results:
+        for result in db.get(self.results):
             if result.party.key() == party.key():
                 return result.percentage
         return 0.0
 
     def left_block_percentage(self):
         sum = 0
-        for k in self.results:
-            result = db.get(k)
+        for result in db.get(self.results):
             if result.party.is_left():
                 sum += result.percentage
         return sum
 
     def right_block_percentage(self):
         sum = 0
-        for k in self.results:
-            result = db.get(k)
+        for result in db.get(self.results):
             if result.party.is_right():
                 sum += result.percentage
         return sum
 
     def other_block_percentage(self):
         sum = 0
-        for k in self.results:
-            result = db.get(k)
+        for result in db.get(self.results):
             if not (result.party.is_left()) and not (result.party.is_right()):
                 sum += result.percentage
         return sum
@@ -102,8 +98,7 @@ class PollingAverage:
     def __init__(self, polls):
         self.percentages = {}
         for poll in polls:
-            for resultkey in poll.results:
-                result = db.get(resultkey)
+            for result in db.get(poll.results):
                 if result.party.key() in self.percentages:
                     prev = self.percentages[result.party.key()]
                 else:
