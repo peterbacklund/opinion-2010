@@ -5,49 +5,42 @@
     <title>Opinion 2010</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <link href="/css/main.css" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 </head>
 <body>
   <div id="header">
-    <h1>Opinion 2010</h1>
-    <h3>Opinionsläget inför riksdagsvalet 2010</h3>
+    <div id="gnews"><!-- Google News --></div>
+    <div id="title">
+      <h1>Opinion 2010</h1>
+      <h3>Opinionsläget inför riksdagsvalet 2010</h3>
+    </div>
+    <div style="clear: both">&nbsp;</div>
   </div>
   <div id="main">
     <div class="row">
+      <h2>Partierna</h2>
       <div class="col1">
         <img src="{{ partyAverage }}" alt="" width="500" height="400" />
       </div>
       <div class="col2">
-        <img src="{{ block }}" alt="" width="250" height="200"/>
-        <img src="{{ seats }}" alt="" width="250" height="200"/>
-      </div>
-      <div style="clear: both">&nbsp;</div>
-    </div>
-    <div class="row">
-      <div class="col1">
         <img src="{{ partyResult }}" alt="" width="500" height="400" />
       </div>
+      <div style="clear: both">&nbsp;</div>
+    </div>
+    <div class="row">
+      <h2>Blocken</h2>
+      <div class="col1">
+        <img src="{{ block }}" alt="" width="250" height="400"/>
+        <img src="{{ seats }}" alt="" width="250" height="400"/>
+      </div>
       <div class="col2">
-        <table id="polls" cellspacing="0" cellpadding="0">
-            <caption>Mätningar</caption>
-            <tr>
-                <th></th>
-                <th>Institut</th>
-                <th>Publicerad</th>
-            </tr>
-            {% for poll in polls %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td class="left">{{ poll.institute.name }}</td>
-                <td class="right">{{ poll.publish_date|date:"Y-m-d" }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        <img src="{{ blockResult }}" alt="" width="500" height="400" />
       </div>
       <div style="clear: both">&nbsp;</div>
     </div>
     <div class="row">
-      <table cellspacing="0">
-          <caption>10 senaste mätningarna</caption>
+      <h2>Senaste 10 mätningarna</h2>
+      <table id="poll_per_party" cellspacing="0">
           <tr>
               <th></th>
               {% for poll in polls %}
@@ -57,20 +50,23 @@
           </tr>
           {{ party_percentages_html }}
       </table>
+      <table id="polls" cellspacing="0" cellpadding="0">
+          <tr>
+              <th></th>
+              <th>Institut</th>
+              <th>Publicerad</th>
+          </tr>
+          {% for poll in polls %}
+          <tr>
+              <td>{{ forloop.counter }}</td>
+              <td class="left">{{ poll.institute.name }}</td>
+              <td class="right">{{ poll.publish_date|date:"Y-m-d" }}</td>
+          </tr>
+          {% endfor %}
+      </table>
     </div>
   </div>
   <div id="sidebar">
-    <!--h2>Prognos</h2>
-    <div id="prediction">
-      Maktskifte  
-    </div-->
-    <h2>Nyheter</h2>
-    <ul id="news">
-      <li>Ny mätning från Synovate.<br/><span class="date">2009-09-19</span></li>
-      <li>Ny mätning från Novus.<br/><span class="date">2009-09-17</span></li>
-      <li>Nya mätningar från Sifo och Skop.<br/><span class="date">2009-09-13</span></li>
-      <li>Premiär för Opinion2010.se!<br/><span class="date">2009-09-09</span></li>
-    </ul>
   </div>
   <div id="footer">
     <em>
@@ -85,10 +81,35 @@
         Mandatfördelningen tar inte och kan inte ta hänsyn till eventuella utjämningsmandat,
         eftersom de styrs av det slutgiltiga valresultatet.
       </p>
-      <p>
+      <!--p>
         Frågor kring tjänsten kan skickas till info@opinion2010.se.
-      </p>
+      </p-->
     </em>
   </div>
+  <script type="text/javascript">
+    var loadOptions = {packages : ["newsshow"]};
+    loadOptions.language = "sv";
+    google.load("elements", "1", loadOptions);
+    function showNews() {
+      var opts = {
+        'queryList' : [
+          {
+            'title' : 'Nyheter',
+            'q' : 'Opinionsundersökning'
+          }
+        ],
+        'displayTime' : 3000,
+        'transitionTime' : 100,
+        'topic' : 'p',
+        'ned' : 'sv',
+        'rsz' : 'large',
+        'format' : '728x90'
+      }
+      var gnews = document.getElementById('gnews');
+      new google.elements.NewsShow(gnews, opts);
+    }
+
+    google.setOnLoadCallback(showNews);
+  </script>
 </body>
 </html>

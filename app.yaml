@@ -1,5 +1,5 @@
 application: opinion-2010
-version: 2
+version: 3
 runtime: python
 api_version: 1
 
@@ -9,6 +9,14 @@ handlers:
 
 - url: /img
   static_dir: img
+
+- url: /poll/.*
+  script: main.py
+  login: admin
+
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin  
 
 - url: /.*
   script: main.py

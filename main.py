@@ -23,6 +23,7 @@ class MainPage(webapp.RequestHandler):
       # TODO memcache this behind a UrlFactory
       partyAverage = PartyAverageBarChart(avg).build_url()
       partyResult = PartyResultLineChart(polls).build_url()
+      blockResult = BlockLineChart(polls).build_url()
       block = BlockPieChart(avg).build_url()
       seats = SeatsChart(avg).build_url()
 
@@ -47,6 +48,7 @@ class MainPage(webapp.RequestHandler):
       template_values = {
         'partyAverage' : partyAverage,
         'partyResult' : partyResult,
+        'blockResult' : blockResult,
         'block' : block,
         'polls' : polls,
         'parties' : parties,
@@ -150,13 +152,12 @@ class FirstPage(webapp.RequestHandler):
             self.response.out.write(party.name)
 
 application = webapp.WSGIApplication([
-        ('/', MainPage),
-        #('/setup_polls', SetupPolls),
-        #('/clear', ClearPage),
-        #('/first', FirstPage),
+  ('/', MainPage),
+        ('/poll/setup', SetupPolls),
+        ('/poll/clear', ClearPage),
+        ('/poll/first', FirstPage),
         ('/poll/add', AddPoll),
         ('/poll/store', StorePoll),
-        ('/set_position', SetPosition),
         ('/clear_cache', ClearCache),
         ], debug=False)
 

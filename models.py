@@ -73,6 +73,29 @@ class Poll(db.Model):
                 return result.percentage
         return 0.0
 
+    def left_block_percentage(self):
+        sum = 0
+        for k in self.results:
+            result = db.get(k)
+            if result.party.is_left():
+                sum += result.percentage
+        return sum
+
+    def right_block_percentage(self):
+        sum = 0
+        for k in self.results:
+            result = db.get(k)
+            if result.party.is_right():
+                sum += result.percentage
+        return sum
+
+    def other_block_percentage(self):
+        sum = 0
+        for k in self.results:
+            result = db.get(k)
+            if not (result.party.is_left()) and not (result.party.is_right()):
+                sum += result.percentage
+        return sum
 
 class PollingAverage:
 
@@ -153,7 +176,7 @@ class PollingAverage:
             party = db.get(k)
             if not (party.is_left()) and not (party.is_right()):
                 sum += v
-        return sum                
+        return sum
 
     def parties(self):
         return db.get(self.percentages.keys())
@@ -199,7 +222,7 @@ class PartyAverageBarChart(Chart):
         ceil = 40.0
         cutoff_ratio = 4.0/ceil 
         url = Chart.base_url(self) + '&' + \
-              Chart.add(self, 'chtt=', 'Partier') + '&' + \
+              Chart.add(self, 'chtt=', 'Procent') + '&' + \
               Chart.add(self, Chart.param_marker, 'r,' + self.marker_color + ',0,0,' + str(cutoff_ratio)) + '&' + \
               Chart.add(self, self.param_bar_width, self.bar_width + ',' + self.bar_spacing) + '&' + \
               Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
@@ -260,10 +283,63 @@ class PartyResultLineChart(Chart):
                      Chart.add(self, self.param_line_style, line_style[0:-1])
 
 
+class BlockLineChart(Chart):
+    margin = 10
+    param_line_style = 'chls='
+
+    def __init__(self, polls):
+        Chart.__init__(self, '500x400', 'lxy')
+        self.polls = []
+        for poll in polls:
+          self.polls.append(poll)
+        self.polls.reverse()
+        self.avg = PollingAverage(polls)
+
+    def build_url(self):
+        ceil = 60.0
+        url = Chart.base_url(self) + \
+              Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
+              Chart.add(self, Chart.param_ranges, '1,0,' + str(len(self.polls)) + '|1,0,' + str(ceil)) + ',5&' + \
+              Chart.add(self, 'chtt=', 'Utveckling') + '&' + \
+              Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&'
+
+        data = colors = legends = line_style = ''
+
+        colors = 'fd3131,85cbeb,adadad'
+        legends = 'Soc.|Borg|Ovr.'
+        line_style = '3|3|3'
+
+        data += '-1|'
+        for poll in self.polls:
+            data += str(poll.left_block_percentage()) + ','
+
+        data = data[0:-1]
+        data += '|-1|'
+        for poll in self.polls:
+            data += str(poll.right_block_percentage()) + ','
+
+        data = data[0:-1]
+        data += '|-1|'
+        for poll in self.polls:
+            data += str(poll.other_block_percentage()) + ','
+
+        x_axis = ''
+        i = len(self.polls)
+        for poll in self.polls:
+            x_axis += '|' + str(i)
+            i -= 1
+
+        return url + Chart.add(self, Chart.param_data, data[0:-1]) + '&' + \
+                     Chart.add(self, Chart.param_colors, colors) + '&' + \
+                     Chart.add(self, self.param_legends, legends) + '&' + \
+                     Chart.add(self, 'chxl=0:', x_axis) + '&' + \
+                     Chart.add(self, self.param_line_style, line_style)
+
+
 class BlockPieChart(Chart):
 
     def __init__(self, avg):
-        Chart.__init__(self, '250x200', 'bvs')
+        Chart.__init__(self, '250x400', 'bvs')
         self.avg = avg
 
     def build_url(self):
@@ -283,14 +359,14 @@ class BlockPieChart(Chart):
                Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
                Chart.add(self, Chart.param_ranges, '0,0,0|1,0,' + str(ceil)) + '&' + \
                Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&' + \
-               Chart.add(self, 'chtt=', 'Blockf&ouml;rdelning') + '&' + \
+               Chart.add(self, 'chtt=', 'Procent') + '&' + \
                Chart.add(self, Chart.param_labels, labels)
 
 
 class SeatsChart(Chart):
 
     def __init__(self, avg):
-        Chart.__init__(self, '250x200', 'bvs')
+        Chart.__init__(self, '250x400', 'bvs')
         self.avg = avg
 
     def build_url(self):
@@ -307,7 +383,7 @@ class SeatsChart(Chart):
             elif party.is_right():
                 #bars[1].append(v)
                 right_sum += v
-            else:
+            elif party.abbreviation == 'SD':
                 #bars[2].append(v)
                 other_sum += v
             #colors += party.color + '|'
@@ -325,8 +401,8 @@ class SeatsChart(Chart):
         #colors = colors[0:-1]
 
         data = str(left_sum) + ',' + str(right_sum) + ',' + str(other_sum)
-        labels = 'Soc. ' + str(left_sum) + ' |Borg. ' + str(right_sum) + ' |&Ouml;vr. ' + str(other_sum)
-        colors = 'fd3131|85cbeb|adadad'
+        labels = 'Soc. ' + str(left_sum) + ' |Borg. ' + str(right_sum) + ' |SD ' + str(other_sum)
+        colors = 'fd3131|85cbeb|729cb6'
 
         return Chart.base_url(self) + '&' + \
                Chart.add(self, Chart.param_data, data) + '&' + \
@@ -335,5 +411,5 @@ class SeatsChart(Chart):
                Chart.add(self, Chart.param_axes, 'x,y') + '&' + \
                Chart.add(self, Chart.param_ranges, '0,0,0|1,0,' + str(ceil)) + ',25&' + \
                Chart.add(self, Chart.param_scaling, '0,' + str(ceil)) + '&' + \
-               Chart.add(self, 'chtt=', 'Mandatf&ouml;rdelning') + '&' + \
+               Chart.add(self, 'chtt=', 'Mandat') + '&' + \
                Chart.add(self, Chart.param_labels, labels)
